@@ -4,7 +4,6 @@ import { ProductServices } from "./product.service";
 const createProduct = async (req: Request, res: Response) => {
     try {
         const { name, description, price, category, tags, variants, inventory } = req.body
-        console.log(name, description, price, category, tags, variants, inventory);
 
         const result = await ProductServices.createProductIntoDB({ name, description, price, category, tags, variants, inventory })
 
@@ -43,6 +42,8 @@ const getSingleProduct = async (req: Request, res: Response) => {
     try {
         const { productId } = req.params
         const result = await ProductServices.getSingleProductFromDB(productId)
+        console.log(result);
+
 
         res.status(200).json({
             success: true,
