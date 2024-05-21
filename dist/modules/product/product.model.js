@@ -1,7 +1,8 @@
-import { Schema, model } from "mongoose";
-import { Inventory, Product, Variants } from "./product.interface";
-
-const variantsSchema = new Schema<Variants>({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProductModel = void 0;
+const mongoose_1 = require("mongoose");
+const variantsSchema = new mongoose_1.Schema({
     type: {
         type: String,
         required: true
@@ -10,8 +11,8 @@ const variantsSchema = new Schema<Variants>({
         type: String,
         required: true
     }
-})
-const inventorySchema = new Schema<Inventory>({
+});
+const inventorySchema = new mongoose_1.Schema({
     quantity: {
         type: Number,
         required: true
@@ -20,10 +21,8 @@ const inventorySchema = new Schema<Inventory>({
         type: Boolean,
         required: true
     }
-})
-
-
-const productSchema = new Schema<Product>({
+});
+const productSchema = new mongoose_1.Schema({
     name: {
         type: String,
         required: true
@@ -52,7 +51,5 @@ const productSchema = new Schema<Product>({
         type: inventorySchema,
         required: true
     }
-})
-
-
-export const ProductModel = model<Product>('Product', productSchema)
+});
+exports.ProductModel = (0, mongoose_1.model)('Product', productSchema);
