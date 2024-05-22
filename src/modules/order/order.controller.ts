@@ -1,11 +1,17 @@
 import { Request, Response } from "express"
 import { OrderServices } from "./order.service"
+import { orderSchema } from "./order.validation";
 
 const createOrder = async (req: Request, res: Response) => {
     try {
-        const { email, productId, price, quantity } = req.body
-
-        const result = await OrderServices.createOrderIntoDB({ email, productId, price, quantity })
+        const { error, value } = orderSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+        const result = await OrderServices.createOrderIntoDB(value)
 
         res.status(200).json({
             success: true,
