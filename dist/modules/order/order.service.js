@@ -15,8 +15,8 @@ const createOrderIntoDB = (order) => __awaiter(void 0, void 0, void 0, function*
     const result = yield order_model_1.OrderModel.create(order);
     return result;
 });
-const getAllOrderFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield order_model_1.OrderModel.find();
+const getAllOrderFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield order_model_1.OrderModel.find(query);
     return result;
 });
 exports.OrderServices = {

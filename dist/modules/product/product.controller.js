@@ -43,9 +43,12 @@ const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
             name: { $regex: search, $options: 'i' }
         };
         const result = yield product_service_1.ProductServices.getAllProductFromDB(query);
+        const message = search ?
+            `Products matching search term '${search}' fetched successfully!` :
+            'Product fetched successfully!';
         res.status(200).json({
             success: true,
-            message: "Product fetched successfully!",
+            message: message,
             data: result
         });
     }

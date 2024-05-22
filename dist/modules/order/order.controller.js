@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.OrderControllers = void 0;
 const order_service_1 = require("./order.service");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -16,7 +17,7 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const result = yield order_service_1.OrderServices.createOrderIntoDB({ email, productId, price, quantity });
         res.status(200).json({
             success: true,
-            message: "Product created successfully!",
+            message: "Order created successfully!",
             data: result
         });
     }
@@ -27,16 +28,19 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         });
     }
 });
-const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const search = req.query.searchTerm || '';
+        const search = req.query.email || '';
         const query = {
-            name: { $regex: search, $options: 'i' }
+            email: { $regex: search, $options: 'i' }
         };
-        const result = yield order_service_1.OrderServices.getAllOrderFromDB();
+        const result = yield order_service_1.OrderServices.getAllOrderFromDB(query);
+        const message = search
+            ? `Orders fetched successfully for user email!`
+            : "Orders fetched successfully!";
         res.status(200).json({
             success: true,
-            message: "Product fetched successfully!",
+            message: message,
             data: result
         });
     }
@@ -48,3 +52,7 @@ const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.log(error);
     }
 });
+exports.OrderControllers = {
+    createOrder,
+    getAllOrders
+};
