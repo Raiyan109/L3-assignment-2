@@ -26,8 +26,9 @@ const createOrder = async (req: Request, res: Response) => {
                 message: error.details[0].message,
             });
         }
-        const result = await OrderServices.createOrderIntoDB(value)
 
+        // Creating order
+        const result = await OrderServices.createOrderIntoDB(value)
         res.status(200).json({
             success: true,
             message: "Order created successfully!",
@@ -44,21 +45,25 @@ const createOrder = async (req: Request, res: Response) => {
 const getAllOrders = async (req: Request, res: Response) => {
     try {
         const search = req.query.email as string || ''
-        const query = {
-            email: { $regex: search, $options: 'i' }
+        let query = {};
+
+        // Only add the email search criteria if a search string is provided
+        if (search) {
+            query = {
+                email: { $regex: search, $options: 'i' }
+            };
         }
 
-        // check if the order is not in the database
-        const userEmail = await OrderModel.findOne({ email: search })
-        if (!userEmail) {
+        const result = await OrderServices.getAllOrderFromDB(query)
+
+        // check if any orders found
+        if (result.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Order not found',
             });
         }
-
-        const result = await OrderServices.getAllOrderFromDB(query)
-
+        // message dynamically
         const message = search
             ? `Orders fetched successfully for user email!`
             : "Orders fetched successfully!";

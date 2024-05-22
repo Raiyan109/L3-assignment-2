@@ -13,7 +13,6 @@ exports.OrderControllers = void 0;
 const order_service_1 = require("./order.service");
 const order_validation_1 = require("./order.validation");
 const product_model_1 = require("../product/product.model");
-const order_model_1 = require("./order.model");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, productId, price, quantity } = req.body;
@@ -33,6 +32,7 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 message: error.details[0].message,
             });
         }
+        // Creating order
         const result = yield order_service_1.OrderServices.createOrderIntoDB(value);
         res.status(200).json({
             success: true,
@@ -50,18 +50,22 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const search = req.query.email || '';
-        const query = {
-            email: { $regex: search, $options: 'i' }
-        };
-        // check if the order is not in the database
-        const userEmail = yield order_model_1.OrderModel.findOne({ email: search });
-        if (!userEmail) {
+        let query = {};
+        // Only add the email search criteria if a search string is provided
+        if (search) {
+            query = {
+                email: { $regex: search, $options: 'i' }
+            };
+        }
+        const result = yield order_service_1.OrderServices.getAllOrderFromDB(query);
+        // check if any orders found
+        if (result.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: 'Order not found',
             });
         }
-        const result = yield order_service_1.OrderServices.getAllOrderFromDB(query);
+        // message dynamically
         const message = search
             ? `Orders fetched successfully for user email!`
             : "Orders fetched successfully!";
