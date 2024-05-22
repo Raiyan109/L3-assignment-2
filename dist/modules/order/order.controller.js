@@ -12,8 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderControllers = void 0;
 const order_service_1 = require("./order.service");
 const order_validation_1 = require("./order.validation");
+const product_model_1 = require("../product/product.model");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { email, productId, price, quantity } = req.body;
+        const product = yield product_model_1.ProductModel.findOne({ _id: productId });
+        console.log(product);
+        if (!product) {
+            return res.status(400).json({
+                success: false,
+                message: 'Product not found',
+            });
+        }
         const { error, value } = order_validation_1.orderSchema.validate(req.body);
         if (error) {
             return res.status(400).json({

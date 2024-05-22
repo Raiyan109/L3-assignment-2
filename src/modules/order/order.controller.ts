@@ -1,9 +1,23 @@
 import { Request, Response } from "express"
 import { OrderServices } from "./order.service"
 import { orderSchema } from "./order.validation";
+import { ProductServices } from "../product/product.service";
+import { ProductModel } from "../product/product.model";
 
 const createOrder = async (req: Request, res: Response) => {
     try {
+        const { email, productId, price, quantity } = req.body
+        const product = await ProductModel.findOne({ _id: productId })
+        console.log(product);
+
+        if (!product) {
+            return res.status(400).json({
+                success: false,
+                message: 'Product not found',
+            });
+        }
+
+
         const { error, value } = orderSchema.validate(req.body);
         if (error) {
             return res.status(400).json({
