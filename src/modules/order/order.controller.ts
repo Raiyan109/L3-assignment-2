@@ -9,7 +9,7 @@ const createOrder = async (req: Request, res: Response) => {
 
         res.status(200).json({
             success: true,
-            message: "Product created successfully!",
+            message: "Order created successfully!",
             data: result
         })
     } catch (error) {
@@ -20,17 +20,22 @@ const createOrder = async (req: Request, res: Response) => {
     }
 }
 
-const getAllProducts = async (req: Request, res: Response) => {
+const getAllOrders = async (req: Request, res: Response) => {
     try {
-        const search = req.query.searchTerm as string || ''
+        const search = req.query.email as string || ''
         const query = {
-            name: { $regex: search, $options: 'i' }
+            email: { $regex: search, $options: 'i' }
         }
-        const result = await OrderServices.getAllOrderFromDB()
+        const result = await OrderServices.getAllOrderFromDB(query)
+
+        const message = search
+            ? `Orders fetched successfully for user email!`
+            : "Orders fetched successfully!";
+
 
         res.status(200).json({
             success: true,
-            message: "Product fetched successfully!",
+            message: message,
             data: result
         })
     } catch (error) {
@@ -41,4 +46,9 @@ const getAllProducts = async (req: Request, res: Response) => {
         console.log(error);
 
     }
+}
+
+export const OrderControllers = {
+    createOrder,
+    getAllOrders
 }

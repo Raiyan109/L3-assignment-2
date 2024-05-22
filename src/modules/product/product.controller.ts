@@ -36,9 +36,13 @@ const getAllProducts = async (req: Request, res: Response) => {
         }
         const result = await ProductServices.getAllProductFromDB(query)
 
+        const message = search ?
+            `Products matching search term '${search}' fetched successfully!` :
+            'Product fetched successfully!'
+
         res.status(200).json({
             success: true,
-            message: "Product fetched successfully!",
+            message: message,
             data: result
         })
     } catch (error) {
