@@ -3,13 +3,14 @@ import { OrderServices } from "./order.service"
 import { orderSchema } from "./order.validation";
 import { ProductServices } from "../product/product.service";
 import { ProductModel } from "../product/product.model";
+import { OrderModel } from "./order.model";
 
 const createOrder = async (req: Request, res: Response) => {
     try {
         const { email, productId, price, quantity } = req.body
-        const product = await ProductModel.findOne({ _id: productId })
-        console.log(product);
 
+        // check if the productId is not in the database
+        const product = await ProductModel.findOne({ _id: productId })
         if (!product) {
             return res.status(400).json({
                 success: false,
@@ -17,7 +18,7 @@ const createOrder = async (req: Request, res: Response) => {
             });
         }
 
-
+        // Joi validation check
         const { error, value } = orderSchema.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -46,6 +47,16 @@ const getAllOrders = async (req: Request, res: Response) => {
         const query = {
             email: { $regex: search, $options: 'i' }
         }
+
+        // check if the order is not in the database
+        const userEmail = await OrderModel.findOne({ email: search })
+        if (!userEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order not found',
+            });
+        }
+
         const result = await OrderServices.getAllOrderFromDB(query)
 
         const message = search

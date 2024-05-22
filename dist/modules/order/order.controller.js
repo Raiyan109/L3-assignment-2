@@ -13,17 +13,19 @@ exports.OrderControllers = void 0;
 const order_service_1 = require("./order.service");
 const order_validation_1 = require("./order.validation");
 const product_model_1 = require("../product/product.model");
+const order_model_1 = require("./order.model");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, productId, price, quantity } = req.body;
+        // check if the productId is not in the database
         const product = yield product_model_1.ProductModel.findOne({ _id: productId });
-        console.log(product);
         if (!product) {
             return res.status(400).json({
                 success: false,
                 message: 'Product not found',
             });
         }
+        // Joi validation check
         const { error, value } = order_validation_1.orderSchema.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -51,6 +53,14 @@ const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const query = {
             email: { $regex: search, $options: 'i' }
         };
+        // check if the order is not in the database
+        const userEmail = yield order_model_1.OrderModel.findOne({ email: search });
+        if (!userEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order not found',
+            });
+        }
         const result = yield order_service_1.OrderServices.getAllOrderFromDB(query);
         const message = search
             ? `Orders fetched successfully for user email!`
