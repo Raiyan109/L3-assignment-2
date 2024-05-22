@@ -16,14 +16,6 @@ const product_model_1 = require("../product/product.model");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, productId, price, quantity } = req.body;
-        // check if the productId is not in the database
-        const product = yield product_model_1.ProductModel.findOne({ _id: productId });
-        if (!product) {
-            return res.status(400).json({
-                success: false,
-                message: 'Product not found',
-            });
-        }
         // Joi validation check
         const { error, value } = order_validation_1.orderSchema.validate(req.body);
         if (error) {
@@ -32,6 +24,27 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 message: error.details[0].message,
             });
         }
+        // Check if the product exists in the database
+        const product = yield product_model_1.ProductModel.findOne({ _id: productId });
+        if (!product) {
+            return res.status(400).json({
+                success: false,
+                message: 'Product not found',
+            });
+        }
+        // Check if the product has enough quantity in stock
+        if (product.inventory.quantity < quantity) {
+            return res.status(400).json({
+                success: false,
+                message: 'Insufficient quantity available in inventory',
+            });
+        }
+        // Reduce the quantity in stock
+        product.inventory.quantity -= quantity;
+        // Update inStock status
+        product.inventory.inStock = product.inventory.quantity > 0;
+        // Save the updated product
+        yield product.save();
         // Creating order
         const result = yield order_service_1.OrderServices.createOrderIntoDB(value);
         res.status(200).json({

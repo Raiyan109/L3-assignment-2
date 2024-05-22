@@ -9,15 +9,6 @@ const createOrder = async (req: Request, res: Response) => {
     try {
         const { email, productId, price, quantity } = req.body
 
-        // check if the productId is not in the database
-        const product = await ProductModel.findOne({ _id: productId })
-        if (!product) {
-            return res.status(400).json({
-                success: false,
-                message: 'Product not found',
-            });
-        }
-
         // Joi validation check
         const { error, value } = orderSchema.validate(req.body);
         if (error) {
@@ -27,8 +18,35 @@ const createOrder = async (req: Request, res: Response) => {
             });
         }
 
+        // Check if the product exists in the database
+        const product = await ProductModel.findOne({ _id: productId });
+        if (!product) {
+            return res.status(400).json({
+                success: false,
+                message: 'Product not found',
+            });
+        }
+
+        // Check if the product has enough quantity in stock
+        if (product.inventory.quantity < quantity) {
+            return res.status(400).json({
+                success: false,
+                message: 'Insufficient quantity available in inventory',
+            });
+        }
+
+        // Reduce the quantity in stock
+        product.inventory.quantity -= quantity;
+        // Update inStock status
+        product.inventory.inStock = product.inventory.quantity > 0;
+
+        // Save the updated product
+        await product.save();
+
         // Creating order
         const result = await OrderServices.createOrderIntoDB(value)
+
+
         res.status(200).json({
             success: true,
             message: "Order created successfully!",
