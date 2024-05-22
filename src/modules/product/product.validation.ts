@@ -15,9 +15,7 @@ const productSchema = Joi.object({
     name: Joi.string()
         .required()
         .trim()
-        .max(20)
-        .regex(/^[A-Z][a-z]*$/, { name: 'capitalize' })
-        .message('Name must start with a capital letter'),
+        .max(20),
     description: Joi.string().required(),
     price: Joi.number().required(),
     category: Joi.string().required(),

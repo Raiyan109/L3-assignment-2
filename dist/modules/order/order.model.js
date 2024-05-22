@@ -1,7 +1,8 @@
-import { Schema, model } from "mongoose";
-import { Order } from "./order.interface";
-
-const orderSchema = new Schema<Order>({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OrderModel = void 0;
+const mongoose_1 = require("mongoose");
+const orderSchema = new mongoose_1.Schema({
     email: {
         type: String,
         required: true
@@ -18,6 +19,5 @@ const orderSchema = new Schema<Order>({
         type: Number,
         required: true
     },
-})
-
-export const OrderModel = model<Order>('Order', orderSchema)
+});
+exports.OrderModel = (0, mongoose_1.model)('Order', orderSchema);

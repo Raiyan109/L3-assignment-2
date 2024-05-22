@@ -11,11 +11,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductControllers = void 0;
 const product_service_1 = require("./product.service");
+const product_validation_1 = require("./product.validation");
 const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, description, price, category, tags, variants, inventory } = req.body;
-        console.log(name, description, price, category, tags, variants, inventory);
-        const result = yield product_service_1.ProductServices.createProductIntoDB({ name, description, price, category, tags, variants, inventory });
+        // Validating the request body before proceeding with db operations
+        const { error, value } = product_validation_1.productSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+        const result = yield product_service_1.ProductServices.createProductIntoDB(value);
         res.status(200).json({
             success: true,
             message: "Product created successfully!",
@@ -31,7 +38,11 @@ const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield product_service_1.ProductServices.getAllProductFromDB();
+        const search = req.query.searchTerm || '';
+        const query = {
+            name: { $regex: search, $options: 'i' }
+        };
+        const result = yield product_service_1.ProductServices.getAllProductFromDB(query);
         res.status(200).json({
             success: true,
             message: "Product fetched successfully!",
@@ -50,6 +61,7 @@ const getSingleProduct = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         const { productId } = req.params;
         const result = yield product_service_1.ProductServices.getSingleProductFromDB(productId);
+        console.log(result);
         res.status(200).json({
             success: true,
             message: "Product fetched successfully!",
@@ -64,8 +76,50 @@ const getSingleProduct = (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.log(error);
     }
 });
+const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { productId } = req.params;
+        const { name, description, price, category, tags, variants, inventory } = req.body;
+        const result = yield product_service_1.ProductServices.updateProductIntoDB(productId, {
+            name, description, price, category, tags, variants, inventory
+        });
+        console.log(result);
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully!",
+            data: result
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error,
+        });
+        console.log(error);
+    }
+});
+const deleteProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { productId } = req.params;
+        const result = yield product_service_1.ProductServices.deleteProductFromDB(productId);
+        res.status(200).json({
+            success: true,
+            message: "Product deleted successfully!",
+            data: result
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error,
+        });
+        console.log(error);
+    }
+});
 exports.ProductControllers = {
     createProduct,
     getAllProducts,
-    getSingleProduct
+    getSingleProduct,
+    updateProduct,
+    deleteProduct
 };
